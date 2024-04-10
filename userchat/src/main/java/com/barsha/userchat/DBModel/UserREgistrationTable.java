@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserREgistrationTable {
+public class UserRegistrationTable {
     private String userID;
     private String firstName;
     private String lastName;
