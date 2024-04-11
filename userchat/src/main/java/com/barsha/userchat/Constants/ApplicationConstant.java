@@ -23,4 +23,6 @@ public class ApplicationConstant {
 
     public static final String      NEXT_STEP_TO_CONTINUE               = "Continue";
     public static final String      NEXT_STEP_TO_STOP                   = "Stop";
+
+    public static final String      SPACES                              = "";
 }
