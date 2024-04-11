@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 
 import com.barsha.userchat.Constants.ApplicationConstant;
 import com.barsha.userchat.Constants.CommonFunctions;
+import com.barsha.userchat.Constants.UserChatErrors;
 import com.barsha.userchat.DBModel.UserMessegeTable;
 import com.barsha.userchat.DBModel.UserRegistrationTable;
 import com.barsha.userchat.Model.CommonResponse;
 import com.barsha.userchat.Model.GetAllMessegeResponse;
+import com.barsha.userchat.Model.UserChatResponse;
 import com.barsha.userchat.Repository.dao.UserMessegeTableDao;
 import com.barsha.userchat.Repository.dao.UserRegistrationTableDao;
 import com.barsha.userchat.Service.UserMessegeService;
@@ -26,12 +28,15 @@ public class UserMessegeServiceImpl implements UserMessegeService{
     UserRegistrationTableDao userRegistrationTableDao;
 
     @Override
-    public CommonResponse NewMessege(UserMessegeTable userMessegeTable) {
+    public UserChatResponse NewMessege(UserMessegeTable userMessegeTable) {
 
         int     functionResult      = ApplicationConstant.ZERO;
         String  nextStep            = ApplicationConstant.NEXT_STEP_TO_CONTINUE;
+        String  errorCode           = ApplicationConstant.SPACES;
 
         CommonResponse      commonResponse      = new CommonResponse();
+        UserChatResponse    userChatResponse    = new UserChatResponse();
+        List<String>        errorList           = new ArrayList<>();
 
         userMessegeTable.setMessegeDate(CommonFunctions.GetCurrentDate());
         userMessegeTable.setMessegeTime(CommonFunctions.GetCurrentTime());
@@ -43,14 +48,20 @@ public class UserMessegeServiceImpl implements UserMessegeService{
                 nextStep        = ApplicationConstant.NEXT_STEP_TO_CONTINUE;
             break;
             case ApplicationConstant.INSERT_UNSUCCESSFUL :
+                errorCode       = UserChatErrors.INSERT_USER_MESSEGE_TABLE_NOT_SUCCESSFUL;
+                errorList.add(errorCode);
                 nextStep        = ApplicationConstant.NEXT_STEP_TO_STOP;
                   
             break;
             case ApplicationConstant.INSERT_MULTIPLE_RECORDS :
+                errorCode       = UserChatErrors.INSERT_USER_MESSEGE_TABLE_INCORRECT;
+                errorList.add(errorCode);
                 nextStep        = ApplicationConstant.NEXT_STEP_TO_STOP;
                 
             break;
             case ApplicationConstant.INSERT_DATA_ACCESS_ERROR :
+                errorCode       = UserChatErrors.DATA_ACCESS_ERROR;
+                errorList.add(errorCode);
                 nextStep        = ApplicationConstant.NEXT_STEP_TO_STOP;
                 
             break;
@@ -62,15 +73,17 @@ public class UserMessegeServiceImpl implements UserMessegeService{
         else {
             commonResponse.setTransactionResult(ApplicationConstant.NEXT_STEP_TO_STOP);
         }
-
-        return commonResponse;
+        userChatResponse.setApiResponse(commonResponse);
+        userChatResponse.setErrorList(errorList);
+        return userChatResponse;
     }
 
     @Override
-    public List<GetAllMessegeResponse> GetAllMessege() {
+    public UserChatResponse GetAllMessege() {
         
         String          nextStep    = ApplicationConstant.NEXT_STEP_TO_CONTINUE;
         String          userID      = ApplicationConstant.SPACES;
+        String          errorCode   = ApplicationConstant.SPACES;
 
         List<UserMessegeTable>      userMessegeTableList        = new ArrayList<>();
         UserMessegeTable            userMessegeTable            = new UserMessegeTable();
@@ -78,6 +91,8 @@ public class UserMessegeServiceImpl implements UserMessegeService{
         UserRegistrationTable       userRegistrationTable       = new UserRegistrationTable();
         GetAllMessegeResponse       getAllMessegeResponse       = new GetAllMessegeResponse();
         List<GetAllMessegeResponse> getAllMessegeResponseList   = new ArrayList<>();
+        UserChatResponse            userChatResponse            = new UserChatResponse();
+        List<String>                errorList                   = new ArrayList<>();
 
         userMessegeTableList    = userMessegeTableDao.GetAllMessege();
 
@@ -87,6 +102,8 @@ public class UserMessegeServiceImpl implements UserMessegeService{
             }
         }
         else {
+            errorCode = UserChatErrors.DATA_ACCESS_ERROR;
+            errorList.add(errorCode);
             nextStep = ApplicationConstant.NEXT_STEP_TO_STOP;
         }
 
@@ -109,6 +126,8 @@ public class UserMessegeServiceImpl implements UserMessegeService{
                     }
                 }
                 else {
+                    errorCode = UserChatErrors.DATA_ACCESS_ERROR;
+                    errorList.add(errorCode);
                     nextStep = ApplicationConstant.NEXT_STEP_TO_STOP;
                 }
 
@@ -116,7 +135,10 @@ public class UserMessegeServiceImpl implements UserMessegeService{
             }
         }
 
-        return getAllMessegeResponseList;
+        userChatResponse.setApiResponse(getAllMessegeResponseList);
+        userChatResponse.setErrorList(errorList);
+
+        return userChatResponse;
     }
     
 }

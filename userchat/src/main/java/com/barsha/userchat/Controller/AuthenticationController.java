@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.barsha.userchat.Constants.ApplicationConstant;
 import com.barsha.userchat.DBModel.UserRegistrationTable;
 import com.barsha.userchat.Model.CommonResponse;
+import com.barsha.userchat.Model.UserChatResponse;
 import com.barsha.userchat.Model.UserLoginRequest;
 import com.barsha.userchat.Service.AuthenticationService;
 
@@ -25,16 +26,16 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
     
     @PostMapping("/Register")
-    public ResponseEntity<CommonResponse>  UserSignup (
+    public ResponseEntity<UserChatResponse>  UserSignup (
             @RequestBody(required = true) UserRegistrationTable userRegistrationTable) {
      logger.debug("*** UserSignup *** - START");
 
-        CommonResponse          commonResponse          = new CommonResponse();
-        HttpStatus              httpStatus              = ApplicationConstant.HTTP_STATUS_ERROR;
+        UserChatResponse           userChatResponse         = new UserChatResponse();
+        HttpStatus                 httpStatus               = ApplicationConstant.HTTP_STATUS_ERROR;
 
-        commonResponse      = authenticationService.UserSignup(userRegistrationTable);
+        userChatResponse      = authenticationService.UserSignup(userRegistrationTable);
         
-       if (commonResponse.getTransactionResult().equals(ApplicationConstant.TRANSACTION_RESULT_SUCCESS)) {
+       if (((CommonResponse) userChatResponse.getApiResponse()).getTransactionResult().equals(ApplicationConstant.TRANSACTION_RESULT_SUCCESS)) {
             httpStatus  = ApplicationConstant.HTTP_STATUS_OK;
        }
        else {
@@ -42,25 +43,26 @@ public class AuthenticationController {
        }
 
        logger.debug("*** UserSignup *** - END");
-       return new ResponseEntity<> (commonResponse, httpStatus);
+       return new ResponseEntity<> (userChatResponse, httpStatus);
     }
 
     @PostMapping("/Login")
-    public ResponseEntity<CommonResponse>  UserLogin (
+    public ResponseEntity<UserChatResponse>  UserLogin (
             @RequestBody(required = true) UserLoginRequest userLoginRequest) {
      logger.debug("*** UserLogin *** - START");
-        CommonResponse          commonResponse          = new CommonResponse();
-        HttpStatus              httpStatus              = ApplicationConstant.HTTP_STATUS_ERROR;
+        UserChatResponse           userChatResponse         = new UserChatResponse();
+        CommonResponse             commonResponse           = new CommonResponse();
+        HttpStatus                 httpStatus               = ApplicationConstant.HTTP_STATUS_ERROR;
 
-        commonResponse      = authenticationService.UserLogin(userLoginRequest);
+        userChatResponse      = authenticationService.UserLogin(userLoginRequest);
         
-       if (commonResponse.getTransactionResult().equals(ApplicationConstant.TRANSACTION_RESULT_SUCCESS)) {
+        if (((CommonResponse) userChatResponse.getApiResponse()).getTransactionResult().equals(ApplicationConstant.TRANSACTION_RESULT_SUCCESS)) {
             httpStatus  = ApplicationConstant.HTTP_STATUS_OK;
-       }
-       else {
+        }
+        else {
             httpStatus  = ApplicationConstant.HTTP_STATUS_ERROR;
-       }
+        }
        logger.debug("*** UserLogin *** - END");
-        return new ResponseEntity<> (commonResponse, httpStatus);
+        return new ResponseEntity<> (userChatResponse, httpStatus);
     }
 }
